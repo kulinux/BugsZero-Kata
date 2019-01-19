@@ -28,17 +28,29 @@ class GameSpec extends FunSpec with Matchers {
       val aGame = new Game
       aGame.add("Chet")
 
-      val randomizer = new Random(123455)
-      val resultStream = new ByteArrayOutputStream
-
-      Console.withOut(new PrintStream(resultStream)) {
-        GameRunner.playFullGame(randomizer, aGame)
-      }
-
-      val expected = Source.fromFile("src/test/scala/com/adaptionsoft/games/trivia/GameTest.lessThanTow.approved.txt").mkString
-      val result = resultStream.toString
-      result shouldBe expected
+      checkGame(aGame, "lessThanTwo")
 
     }
+
+    it("Should not allow more than 6") {
+      val aGame = new Game
+      1 to 7 map(s"Player" + _) foreach { aGame.add }
+
+      checkGame(aGame, "moreThanSix")
+
+    }
+  }
+
+  private def checkGame(aGame: Game, file: String) = {
+    val randomizer = new Random(123455)
+    val resultStream = new ByteArrayOutputStream
+
+    Console.withOut(new PrintStream(resultStream)) {
+      GameRunner.playFullGame(randomizer, aGame)
+    }
+
+    val expected = Source.fromFile(s"src/test/scala/com/adaptionsoft/games/trivia/GameTest.$file.approved.txt").mkString
+    val result = resultStream.toString
+    result shouldBe expected
   }
 }

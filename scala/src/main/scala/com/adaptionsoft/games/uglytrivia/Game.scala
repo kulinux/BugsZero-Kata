@@ -30,7 +30,7 @@ class Game() {
 
   def createRockQuestion(index: Int): String = "Rock Question " + index
 
-  def isPlayable: Boolean = howManyPlayers >= 2
+  def isPlayable: Boolean = howManyPlayers >= 2 && howManyPlayers <= 6
 
   def add(playerName: String): Boolean = {
     players.append(Player(name = playerName))
