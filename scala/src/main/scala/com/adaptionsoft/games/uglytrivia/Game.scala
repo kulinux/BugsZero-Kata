@@ -2,11 +2,18 @@ package com.adaptionsoft.games.uglytrivia
 
 import scala.collection.mutable
 
+case class Player(name: String,
+                  var place: Int = 0,
+                  var purse: Int = 0,
+                  var inPenaltyBox: Boolean = false) {
+  override def toString: String = name
+}
+
 class Game() {
-  val players = mutable.ListBuffer[String]()
-  val places = new Array[Int](6)
-  val purses = new Array[Int](6)
-  val inPenaltyBox = new Array[Boolean](6)
+
+  val players = mutable.ListBuffer[Player]()
+
+
   val popQuestions = mutable.ListBuffer[String]()
   val scienceQuestions = mutable.ListBuffer[String]()
   val sportsQuestions = mutable.ListBuffer[String]()
@@ -26,21 +33,24 @@ class Game() {
   def isPlayable: Boolean = howManyPlayers >= 2
 
   def add(playerName: String): Boolean = {
-    players.append(playerName)
-    places(howManyPlayers) = 0
-    purses(howManyPlayers) = 0
-    inPenaltyBox(howManyPlayers) = false
+    players.append(Player(name = playerName))
     println(playerName + " was added")
     println("They are player number " + players.size)
     true
   }
 
+  def currPlayer = players(currentPlayer)
+
   def howManyPlayers: Int = players.size
 
   def roll(roll: Int): Unit = {
+    if(!isPlayable) {
+      println("Not playable")
+      return
+    }
     println(players(currentPlayer) + " is the current player")
     println("They have rolled a " + roll)
-    if (inPenaltyBox(currentPlayer)) if (roll % 2 != 0) {
+    if (currPlayer.inPenaltyBox) if (roll % 2 != 0) {
       isGettingOutOfPenaltyBox = true
       println(players(currentPlayer) + " is getting out of the penalty box")
       movePlayerAndAskQuestion(roll)
@@ -52,9 +62,9 @@ class Game() {
   }
 
   private def movePlayerAndAskQuestion(roll: Int): Unit = {
-    places(currentPlayer) = places(currentPlayer) + roll
-    if (places(currentPlayer) > 11) places(currentPlayer) = places(currentPlayer) - 12
-    println(players(currentPlayer) + "'s new location is " + places(currentPlayer))
+    currPlayer.place = currPlayer.place + roll
+    if (currPlayer.place > 11) currPlayer.place = currPlayer.place - 12
+    println(players(currentPlayer) + "'s new location is " + currPlayer.place)
     println("The category is " + currentCategory)
     askQuestion()
   }
@@ -67,26 +77,31 @@ class Game() {
   }
 
   private def currentCategory: String = {
-    if (places(currentPlayer) == 0) return "Pop"
-    if (places(currentPlayer) == 4) return "Pop"
-    if (places(currentPlayer) == 8) return "Pop"
-    if (places(currentPlayer) == 1) return "Science"
-    if (places(currentPlayer) == 5) return "Science"
-    if (places(currentPlayer) == 9) return "Science"
-    if (places(currentPlayer) == 2) return "Sports"
-    if (places(currentPlayer) == 6) return "Sports"
-    if (places(currentPlayer) == 10) return "Sports"
+    if (currPlayer.place == 0) return "Pop"
+    if (currPlayer.place == 4) return "Pop"
+    if (currPlayer.place == 8) return "Pop"
+    if (currPlayer.place == 1) return "Science"
+    if (currPlayer.place == 5) return "Science"
+    if (currPlayer.place == 9) return "Science"
+    if (currPlayer.place == 2) return "Sports"
+    if (currPlayer.place == 6) return "Sports"
+    if (currPlayer.place == 10) return "Sports"
     "Rock"
   }
 
-  def wasCorrectlyAnswered: Boolean =
-    if (inPenaltyBox(currentPlayer)) {
+  def wasCorrectlyAnswered: Boolean = {
+
+    if(!isPlayable) {
+      println("Not playable")
+      return false
+    }
+    if (currPlayer.inPenaltyBox) {
       if (isGettingOutOfPenaltyBox) {
         println("Answer was correct!!!!")
         currentPlayer += 1
         if (currentPlayer == players.size) currentPlayer = 0
-        purses(currentPlayer) += 1
-        println(players(currentPlayer) + " now has " + purses(currentPlayer) + " Gold Coins.")
+        currPlayer.purse += 1
+        println(players(currentPlayer) + " now has " + currPlayer.purse + " Gold Coins.")
         val winner = didPlayerWin
         winner
       } else {
@@ -96,23 +111,28 @@ class Game() {
       }
     } else {
       println("Answer was corrent!!!!")
-      purses(currentPlayer) += 1
-      println(players(currentPlayer) + " now has " + purses(currentPlayer) + " Gold Coins.")
+      currPlayer.purse += 1
+      println(players(currentPlayer) + " now has " + currPlayer.purse + " Gold Coins.")
       val winner = didPlayerWin
       currentPlayer += 1
       if (currentPlayer == players.size) currentPlayer = 0
       winner
     }
+  }
 
   def wrongAnswer: Boolean = {
+    if(!isPlayable) {
+      println("Not playable")
+      return false
+    }
     println("Question was incorrectly answered")
     println(players(currentPlayer) + " was sent to the penalty box")
-    inPenaltyBox(currentPlayer) = true
+    currPlayer.inPenaltyBox = true
     currentPlayer += 1
     if (currentPlayer == players.size) currentPlayer = 0
     true
   }
 
 
-  private def didPlayerWin: Boolean = !(purses(currentPlayer) == 6)
+  private def didPlayerWin: Boolean = !(currPlayer.purse == 6)
 }

@@ -17,6 +17,10 @@ object GameRunner {
     aGame.add("Chet")
     aGame.add("Pat")
     aGame.add("Sue")
+    playFullGame(rand, aGame)
+  }
+
+  def playFullGame(rand: Random, aGame: Game) = {
     do {
       aGame.roll(rand.nextInt(5) + 1)
       if (rand.nextInt(9) == 7) notAWinner = aGame.wrongAnswer

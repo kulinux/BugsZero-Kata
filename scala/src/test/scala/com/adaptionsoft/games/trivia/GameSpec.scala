@@ -4,6 +4,7 @@ import java.io.{ByteArrayOutputStream, PrintStream}
 import java.util.Random
 
 import com.adaptionsoft.games.trivia.runner.GameRunner
+import com.adaptionsoft.games.uglytrivia.Game
 import org.scalatest.{FunSpec, Matchers}
 
 import scala.io.Source
@@ -21,6 +22,23 @@ class GameSpec extends FunSpec with Matchers {
       val expected = Source.fromFile("../java/src/test/java/com/adaptionsoft/games/trivia/GameTest.itsLockedDown.approved.txt").mkString
       val result = resultStream.toString
       result shouldBe expected
+    }
+
+    it("Should not allow less than 2") {
+      val aGame = new Game
+      aGame.add("Chet")
+
+      val randomizer = new Random(123455)
+      val resultStream = new ByteArrayOutputStream
+
+      Console.withOut(new PrintStream(resultStream)) {
+        GameRunner.playFullGame(randomizer, aGame)
+      }
+
+      val expected = Source.fromFile("src/test/scala/com/adaptionsoft/games/trivia/GameTest.lessThanTow.approved.txt").mkString
+      val result = resultStream.toString
+      result shouldBe expected
+
     }
   }
 }
