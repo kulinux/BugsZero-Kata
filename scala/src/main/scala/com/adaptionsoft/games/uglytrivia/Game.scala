@@ -2,33 +2,16 @@ package com.adaptionsoft.games.uglytrivia
 
 import scala.collection.mutable
 
-case class Player(name: String,
-                  var place: Int = 0,
-                  var purse: Int = 0,
-                  var inPenaltyBox: Boolean = false) {
-  override def toString: String = name
-}
-
 class Game() {
 
   val players = mutable.ListBuffer[Player]()
+  val questions = new Questions()
 
 
-  val popQuestions = mutable.ListBuffer[String]()
-  val scienceQuestions = mutable.ListBuffer[String]()
-  val sportsQuestions = mutable.ListBuffer[String]()
-  val rockQuestions = mutable.ListBuffer[String]()
   var currentPlayer = 0
   var isGettingOutOfPenaltyBox: Boolean = false
 
-  (0 until 50).foreach { i =>
-    popQuestions.append("Pop Question " + i)
-    scienceQuestions.append("Science Question " + i)
-    sportsQuestions.append("Sports Question " + i)
-    rockQuestions.append(createRockQuestion(i))
-  }
 
-  def createRockQuestion(index: Int): String = "Rock Question " + index
 
   def isPlayable: Boolean = howManyPlayers >= 2 && howManyPlayers <= 6
 
@@ -69,12 +52,7 @@ class Game() {
     askQuestion()
   }
 
-  private def askQuestion(): Unit = {
-    if (currentCategory eq "Pop") println(popQuestions.remove(0))
-    if (currentCategory eq "Science") println(scienceQuestions.remove(0))
-    if (currentCategory eq "Sports") println(sportsQuestions.remove(0))
-    if (currentCategory eq "Rock") println(rockQuestions.remove(0))
-  }
+  private def askQuestion(): Unit = questions.askQuestion(currentCategory)
 
   private def currentCategory: String = {
     if (currPlayer.place == 0) return "Pop"
